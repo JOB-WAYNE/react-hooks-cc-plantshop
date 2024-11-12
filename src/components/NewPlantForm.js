@@ -1,23 +1,23 @@
 import React, { useState } from "react";
 
-function NewPlantForm({ onAddPlant }) {
+function NewPlantForm({ addPlant }) {
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [price, setPrice] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newPlant = { name, image, price: parseFloat(price) };
 
-    fetch("http://localhost:6001/plants", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newPlant),
-    })
-      .then((response) => response.json())
-      .then((addedPlant) => onAddPlant(addedPlant)); // Add new plant to the state
+    const newPlant = {
+      name,
+      image,
+      price: parseFloat(price),
+    };
+
+    addPlant(newPlant);
+    setName("");
+    setImage("");
+    setPrice("");
   };
 
   return (

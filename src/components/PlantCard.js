@@ -1,62 +1,42 @@
 import React, { useState } from "react";
 
-function PlantCard({ id, name, price, imageUrl, onDelete, onUpdatePrice }) {
-  const [inStock, setInStock] = useState(true);
-  const [newPrice, setNewPrice] = useState(price);
+function PlantCard({ plant, updatePrice, deletePlant }) {
+  const [isSoldOut, setIsSoldOut] = useState(false);
+  const [newPrice, setNewPrice] = useState(plant.price);
 
-  const handleStockToggle = () => {
-    setInStock(!inStock);
+  const toggleSoldOut = () => {
+    setIsSoldOut(!isSoldOut);
   };
 
-  const handlePriceUpdate = () => {
-    if (newPrice !== price) {
-      // Update the plant's price on the backend
-      fetch(`http://localhost:6001/plants/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ price: newPrice }),
-      })
-        .then((response) => response.json())
-        .then((updatedPlant) => {
-          onUpdatePrice(updatedPlant); // Update the plant list state in the parent component
-        });
-    }
+  const handlePriceChange = (e) => {
+    setNewPrice(e.target.value);
+  };
+
+  const handleUpdatePrice = () => {
+    updatePrice(plant.id, parseFloat(newPrice));
   };
 
   const handleDelete = () => {
-    fetch(`http://localhost:6001/plants/${id}`, {
-      method: "DELETE",
-    }).then(() => {
-      onDelete(id); // Remove the plant from the state in the parent component
-    });
+    deletePlant(plant.id);
   };
 
   return (
     <li className="card" data-testid="plant-item">
-      <img src={imageUrl} alt={name} />
-      <h4>{name}</h4>
-      <p>
-        Price: $
-        <input
-          type="number"
-          value={newPrice}
-          onChange={(e) => setNewPrice(e.target.value)}
-          step="0.01"
-        />
-      </p>
-      <button className="primary" onClick={handlePriceUpdate}>
-        Update Price
+      <img src={plant.image} alt={plant.name} />
+      <h4>{plant.name}</h4>
+      <p>Price: ${plant.price}</p>
+      <input
+        type="number"
+        value={newPrice}
+        onChange={handlePriceChange}
+        step="0.01"
+        min="0"
+      />
+      <button onClick={handleUpdatePrice}>Update Price</button>
+      <button className={isSoldOut ? "" : "primary"} onClick={toggleSoldOut}>
+        {isSoldOut ? "Sold Out" : "In Stock"}
       </button>
-      {inStock ? (
-        <button className="primary" onClick={handleStockToggle}>
-          In Stock
-        </button>
-      ) : (
-        <button onClick={handleStockToggle}>Sold out</button>
-      )}
-      <button className="delete" onClick={handleDelete}>
+      <button onClick={handleDelete} className="delete">
         Delete
       </button>
     </li>
